@@ -4,18 +4,18 @@ type Grammar = Map<string, string list list>
 
 let epsilon = "ε"
 
-let rec first grammar symbol =
-    match Map.tryFind symbol grammar with
+let rec first grammar (symbol: string) =
+    let key = symbol[0].ToString()
+    match Map.tryFind key grammar with
     | Some rules ->
         rules
         |> List.collect (fun rule ->
             match rule with
-            | [] -> []
-            | head :: tail ->
-                if head = epsilon && tail.Length > 0 then
-                    first grammar tail.Head
-                else
-                    first grammar head
+            | [] -> [epsilon]
+            | head :: _ ->
+                if head = epsilon then [epsilon]
+                else if Map.containsKey (head[0].ToString()) grammar then first grammar head
+                else [head]
         )
     | None -> [symbol]
 
